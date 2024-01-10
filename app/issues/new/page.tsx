@@ -5,6 +5,7 @@ import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Spinner from "@/app/components/Spinner";
 
 interface IssueForm {
   title: string;
@@ -17,6 +18,7 @@ const NewIssuePage = () => {
     description: "",
   });
   const [error, setError] = useState<string>();
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
   const handleTitleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
@@ -28,9 +30,11 @@ const NewIssuePage = () => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
+      setIsSubmitted(true);
       const response = await axios.post("/api/issues", issueData);
       router.push("/issues");
     } catch (error) {
+      setIsSubmitted(false);
       setError("An unexpected error occured!");
     }
   };
@@ -61,7 +65,10 @@ const NewIssuePage = () => {
           onChange={handleDescriptionChange}
           className="mb-8"
         />
-        <Button className="mt-9">Submit</Button>
+        <Button disabled={isSubmitted} className="mt-9 hover:cursor-pointer">
+          Submit
+          {isSubmitted && <Spinner />}
+        </Button>
       </form>
     </div>
   );
