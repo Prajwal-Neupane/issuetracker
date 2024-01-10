@@ -1,5 +1,5 @@
 "use client";
-import { Button, TextArea, TextField } from "@radix-ui/themes";
+import { Button, Callout, TextArea, TextField } from "@radix-ui/themes";
 import React, { useState } from "react";
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
@@ -16,13 +16,8 @@ const NewIssuePage = () => {
     title: "",
     description: "",
   });
-  //   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-  //     const { name, value } = e.currentTarget;
-  //     setIssueData({
-  //       ...issueData,
-  //       [name]: value,
-  //     });
-  //   };
+  const [error, setError] = useState<string>();
+
   const handleTitleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
     setIssueData({
@@ -32,8 +27,12 @@ const NewIssuePage = () => {
   };
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const response = await axios.post("/api/issues", issueData);
-    router.push("/issues");
+    try {
+      const response = await axios.post("/api/issues", issueData);
+      router.push("/issues");
+    } catch (error) {
+      setError("An unexpected error occured!");
+    }
   };
   const handleDescriptionChange = (value: string) => {
     setIssueData({
@@ -42,21 +41,29 @@ const NewIssuePage = () => {
     });
   };
   return (
-    <form className="max-w-xl px-8 py-8" onSubmit={handleSubmit}>
-      <TextField.Root className="mb-6">
-        <TextField.Input
-          placeholder="Title"
-          onChange={handleTitleChange}
-          name="title"
+    <div className="max-w-xl px-8 py-8">
+      {error && (
+        <Callout.Root color="red">
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
+      )}
+
+      <form className="" onSubmit={handleSubmit}>
+        <TextField.Root className="mb-6">
+          <TextField.Input
+            placeholder="Title"
+            onChange={handleTitleChange}
+            name="title"
+          />
+        </TextField.Root>
+        <SimpleMDE
+          placeholder="Description of Issue"
+          onChange={handleDescriptionChange}
+          className="mb-8"
         />
-      </TextField.Root>
-      <SimpleMDE
-        placeholder="Description of Issue"
-        onChange={handleDescriptionChange}
-        className="mb-8"
-      />
-      <Button className="mt-9">Submit</Button>
-    </form>
+        <Button className="mt-9">Submit</Button>
+      </form>
+    </div>
   );
 };
 
